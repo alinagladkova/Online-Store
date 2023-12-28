@@ -13,6 +13,9 @@ img {
 }
 
 .root {
+}
+
+.product-list {
   display: flex;
   flex-wrap: wrap;
 }
@@ -21,7 +24,7 @@ img {
   position: relative;
   overflow: hidden;
   font-family: "Roboto", sans-serif;
-  width: 320px;
+  width: 300px;
   box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.3);
   background-color: #0f0c2b;
   margin: 10px;
@@ -149,8 +152,7 @@ img {
   font-size: 12px;
   margin-left: 5px;
   list-style-type: none;
-  width: 230px;
-  /* ширину вычислить */
+  width: 190px;
   overflow: auto;
 }
 
