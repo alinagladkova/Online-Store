@@ -175,8 +175,9 @@ class Product {
   _subElements = {};
   _state = {
     favorite: false,
-    watts: 0,
-    colors: 0,
+    watts: 1,
+    colors: 1,
+    isFirstRender: true,
   };
 
   constructor({ title, price, priceType, description, properties, watts, colors }, Choice, ChoiceItem) {
@@ -197,9 +198,6 @@ class Product {
     this._subElements = this._getSubElements();
     this._addListener();
     this._render();
-    // console.log(this._state.colors.img);
-    console.log(this._colors[this._state.colors].img);
-    //нужно получить
   }
 
   _addListener() {
@@ -212,30 +210,59 @@ class Product {
   _render() {
     this._subElements.favorites.innerHTML = this._state.favorite ? `<i class="fa-solid fa-star"></i>` : `<i class="fa-regular fa-star"></i>`;
 
-    this._subElements.options.insertAdjacentElement("beforeend", new this._Choice({ title: "Watts", data: this._watts }, this._ChoiceItem).element);
-    this._subElements.options.insertAdjacentElement("beforeend", new this._Choice({ title: "Colors", data: this._colors }, this._ChoiceItem).element);
+    this._subElements.img.src = `img/${this._colors[this._state.colors - 1].img}`;
+
+    if (this._watts[this._state.watts - 1]) {
+      this._subElements.imgWrapper.className = `product__image-wrapper--light-${this._watts[this._state.watts - 1].text}`;
+    } else {
+      this._subElements.imgWrapper.className = `product__image-wrapper`;
+    }
+
+    if (this._state.isFirstRender) {
+      this._subElements.options.insertAdjacentElement(
+        "beforeend",
+        new this._Choice({ title: "Watts", data: this._watts }, this._ChoiceItem, this._getWatt.bind(this)).element
+      );
+      this._subElements.options.insertAdjacentElement(
+        "beforeend",
+        new this._Choice({ title: "Colors", data: this._colors }, this._ChoiceItem, this._getColor.bind(this)).element
+      );
+    }
+
+    if (this._state.isFirstRender) {
+      this._state.isFirstRender = false;
+    }
   }
 
-  getImage() {}
+  _getWatt(itemId) {
+    this._state.watts = itemId;
+    this._render();
+  }
+
+  _getColor(itemId) {
+    this._state.colors = itemId;
+    this._render();
+  }
 
   _getTemplate() {
     return `
 		<div class="product">
-          <div class="product__image-wrapper">
-            <img class="product__image" src="img/${this._colors[this._state.colors].img}" alt="img" />
-          </div>
-          <div class="product__favorites" data-element="favorites"></div>
-          <div class="product__info">
-            <div class="product__title">${this._title}</div>
-            <div class="product__price">${this._price} ${this._priceType}</div>
-            <div class="product__options" data-element="options"></div>
-            <div class="product__description">${this._description}</div>
-						<div class="product__btn">
-						  <button class="btn btn--buy">Buy</button>
-						</div>
-          </div>
+			<div class="product__main">
+				<div class="product__favorites" data-element="favorites"></div>
+        <div class="product__image-wrapper" data-element="imgWrapper">
+          <img class="product__image" data-element="img" src="" alt="img" />
         </div>
-		`;
+        <div class="product__info">
+          <h4 class="product__title">${this._title}</h4>
+          <span class="product__price">${this._price} ${this._priceType}</span>
+          <div class="product__options" data-element="options"></div>
+          <div class="product__description">${this._description}</div>
+				</div>
+			</div>
+			<div class="product__btn">
+				<button class="btn btn--buy">Buy</button>
+			</div>
+     </div>`;
   }
 
   get element() {
@@ -260,10 +287,11 @@ class Choice {
     activeItem: 1,
   };
 
-  constructor({ title, data }, ChoiceItem) {
+  constructor({ title, data }, ChoiceItem, callback) {
     this._title = title;
     this._data = data;
     this._ChoiceItem = ChoiceItem;
+    this._callback = callback;
     this._init();
   }
 
@@ -290,17 +318,18 @@ class Choice {
     this._subElements.menu.append(...this._addItem());
   }
 
-  _getId(itemId) {
+  _getActiveItemId(itemId) {
     this._state.activeItem = itemId;
+    this._callback(itemId);
     this._render();
   }
 
   _addItem() {
     return this._data.map((el) => {
       if (this._state.activeItem === el.id) {
-        return new this._ChoiceItem({ ...el, active: true }, this._getId.bind(this)).element;
+        return new this._ChoiceItem({ ...el, active: true }, this._getActiveItemId.bind(this)).element;
       } else {
-        return new this._ChoiceItem({ ...el, active: false }, this._getId.bind(this)).element;
+        return new this._ChoiceItem({ ...el, active: false }, this._getActiveItemId.bind(this)).element;
       }
     });
   }
@@ -328,17 +357,14 @@ class Choice {
   }
 }
 
-//на листенер выделение одного элемента, передача его данных в блок choice и product
-
 class ChoiceItem {
   _element = null;
   _subElements = {};
 
-  constructor({ id, text, unit, img, active }, itemId) {
+  constructor({ id, text, unit, active }, itemId) {
     this._id = id;
     this._text = text;
     this._unit = unit;
-    this._img = img;
     this._active = active;
     this._itemId = itemId;
     this._init();
@@ -376,3 +402,5 @@ class ChoiceItem {
 
 const root = document.querySelector(".root");
 root.insertAdjacentElement("afterbegin", new ProductList(products, Product, Choice, ChoiceItem).element);
+
+// handler
