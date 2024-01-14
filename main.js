@@ -124,11 +124,12 @@ class ProductList {
   _element = null;
   _subElements = {};
 
-  constructor(products, Product, Choice, ChoiceItem) {
+  constructor(products, Product, Choice, ChoiceItem, Popup) {
     this._products = products;
     this._Product = Product;
     this._Choice = Choice;
     this._ChoiceItem = ChoiceItem;
+    this._Popup = Popup;
     this._init();
   }
 
@@ -143,7 +144,7 @@ class ProductList {
   }
 
   _addProduct() {
-    return this._products.map((product) => new this._Product(product, this._Choice, this._ChoiceItem).element);
+    return this._products.map((product) => new this._Product(product, this._Choice, this._ChoiceItem, this._Popup).element);
   }
 
   _getTemplate() {
@@ -180,7 +181,7 @@ class Product {
     isFirstRender: true,
   };
 
-  constructor({ title, price, priceType, description, properties, watts, colors }, Choice, ChoiceItem) {
+  constructor({ title, price, priceType, description, properties, watts, colors }, Choice, ChoiceItem, Popup) {
     this._title = title;
     this._price = price;
     this._priceType = priceType;
@@ -190,6 +191,7 @@ class Product {
     this._colors = colors;
     this._Choice = Choice;
     this._ChoiceItem = ChoiceItem;
+    this._Popup = Popup;
     this._init();
   }
 
@@ -203,6 +205,10 @@ class Product {
   _addListener() {
     this._subElements.favorites.addEventListener("click", () => {
       this._state.favorite = !this._state.favorite;
+      this._render();
+    });
+
+    this._subElements.more.addEventListener("click", () => {
       this._render();
     });
   }
@@ -248,6 +254,9 @@ class Product {
     return `
 		<div class="product">
 			<div class="product__main">
+				<div class="product__more" data-element="more">
+					<i class="fa-solid fa-angles-right"></i>
+				</div>
 				<div class="product__favorites" data-element="favorites"></div>
         <div class="product__image-wrapper" data-element="imgWrapper">
           <img class="product__image" data-element="img" src="" alt="img" />
@@ -400,7 +409,83 @@ class ChoiceItem {
   }
 }
 
-const root = document.querySelector(".root");
-root.insertAdjacentElement("afterbegin", new ProductList(products, Product, Choice, ChoiceItem).element);
+class Popup {
+  _element = null;
+  _subElements = {};
 
-// handler
+  constructor() {
+    this._init();
+  }
+
+  _init() {
+    this._element = createElement(this._getTemplate());
+    this._subElements = this._getSubElements();
+    this._addListeners();
+  }
+
+  _addListeners() {
+    this._subElements.btn.addEventListener("click", () => this._close());
+  }
+
+  open() {
+    this._subElements.popup.classList.add("popup--active");
+  }
+
+  _close() {
+    this._subElements.popup.classList.remove("popup--active");
+  }
+
+  _getTemplate() {
+    return `it's base template. Change it.`;
+  }
+
+  get element() {
+    return this._element;
+  }
+
+  _getSubElements() {
+    return Array.from(this._element.querySelectorAll("[data-element]")).reduce((acc, el) => {
+      return {
+        ...acc,
+        [el.getAttribute("data-element")]: el,
+      };
+    }, {});
+  }
+}
+
+class PopupProperties extends Popup {}
+
+class PopupBuy extends Popup {
+  constructor(title) {
+    super();
+    this._title = title;
+  }
+
+  _render() {
+    this._subElements.container.insertAdjacentElement("afterbegin", this._addContent());
+  }
+
+  _getTemplate() {
+    return `
+		<div class="popup" data-element="popup">
+      <div class="popup__wrapper">
+        <button class="popup__btn btn--close btn" data-element="btn">x</button>
+        <div class="popup__container" data-element="container">
+				  <h3 class="popup__title">Товар в корзине:</h3>
+      		<p class="popup__text"></p>
+      		<div class="popup__buttons">
+        		<button class="popup__btn btn--continue btn">Продолжить покупки</button>
+        		<button class="popup__btn btn--cart btn">В корзину</button>
+      		</div>
+				</div>
+      </div>
+    </div>
+		`;
+  }
+}
+
+class PopupImage extends Popup {}
+
+const root = document.querySelector(".root");
+const popupBuy = new PopupBuy();
+root.insertAdjacentElement("afterbegin", new ProductList(products, Product, Choice, ChoiceItem, Popup).element);
