@@ -181,7 +181,7 @@ class Product {
     isFirstRender: true,
   };
 
-  constructor({ title, price, priceType, description, properties, watts, colors }, Choice, ChoiceItem, Popup) {
+  constructor({ title, price, priceType, description, properties, watts, colors }, Choice, ChoiceItem) {
     this._title = title;
     this._price = price;
     this._priceType = priceType;
@@ -191,7 +191,6 @@ class Product {
     this._colors = colors;
     this._Choice = Choice;
     this._ChoiceItem = ChoiceItem;
-    this._Popup = Popup;
     this._init();
   }
 
@@ -208,8 +207,37 @@ class Product {
       this._render();
     });
 
-    this._subElements.more.addEventListener("click", () => {
-      this._render();
+    this._subElements.buy.addEventListener("click", (e) => {
+      e.target.dispatchEvent(
+        new CustomEvent("addToCart", {
+          bubbles: true,
+          detail: {
+            productTitle: this._title,
+          },
+        })
+      );
+    });
+
+    this._subElements.more.addEventListener("click", (e) => {
+      e.target.dispatchEvent(
+        new CustomEvent("openProperties", {
+          bubbles: true,
+          detail: {
+            properties: this._properties,
+          },
+        })
+      );
+    });
+
+    this._subElements.imgWrapper.addEventListener("click", (e) => {
+      e.target.dispatchEvent(
+        new CustomEvent("openImage", {
+          bubbles: true,
+          detail: {
+            src: this._colors[this._state.colors - 1].img,
+          },
+        })
+      );
     });
   }
 
@@ -268,7 +296,7 @@ class Product {
           <div class="product__description">${this._description}</div>
 				</div>
 			</div>
-			<div class="product__btn">
+			<div class="product__btn" data-element="buy">
 				<button class="btn btn--buy">Buy</button>
 			</div>
      </div>`;
@@ -412,6 +440,7 @@ class ChoiceItem {
 class Popup {
   _element = null;
   _subElements = {};
+  _state = {};
 
   constructor() {
     this._init();
@@ -420,19 +449,34 @@ class Popup {
   _init() {
     this._element = createElement(this._getTemplate());
     this._subElements = this._getSubElements();
+    this._handleKeyDocument = this._handleKeyDocument.bind(this);
     this._addListeners();
   }
 
   _addListeners() {
-    this._subElements.btn.addEventListener("click", () => this._close());
+    this._subElements.btn.addEventListener("click", () => this.close());
+
+    this._element.addEventListener("click", (e) => {
+      if (e.target === this._subElements.wrapper) {
+        this.close();
+      }
+    });
+  }
+
+  _handleKeyDocument(e) {
+    if (e.key === "Escape") {
+      this.close();
+    }
   }
 
   open() {
-    this._subElements.popup.classList.add("popup--active");
+    document.addEventListener("keydown", this._handleKeyDocument);
+    this._element.classList.add("popup--active");
   }
 
-  _close() {
-    this._subElements.popup.classList.remove("popup--active");
+  close() {
+    document.addEventListener("keydown", this._handleKeyDocument);
+    this._element.classList.remove("popup--active");
   }
 
   _getTemplate() {
@@ -453,30 +497,37 @@ class Popup {
   }
 }
 
-class PopupProperties extends Popup {}
-
-class PopupBuy extends Popup {
-  constructor(title) {
+class PopupProperties extends Popup {
+  constructor(PropertyItem) {
     super();
-    this._title = title;
+    this._PropertyItem = PropertyItem;
+  }
+
+  _generateItems() {
+    return this._state.properties.map((property) => {
+      return new this._PropertyItem({ ...property }).element;
+    });
   }
 
   _render() {
-    this._subElements.container.insertAdjacentElement("afterbegin", this._addContent());
+    this._subElements.list.innerHTML = "";
+    this._subElements.list.append(...this._generateItems());
+  }
+
+  open(properties) {
+    this._state.properties = properties;
+    this._render();
+    super.open();
   }
 
   _getTemplate() {
     return `
-		<div class="popup" data-element="popup">
-      <div class="popup__wrapper">
-        <button class="popup__btn btn--close btn" data-element="btn">x</button>
+		<div class="popup">
+      <div class="popup__wrapper" data-element="wrapper">
         <div class="popup__container" data-element="container">
-				  <h3 class="popup__title">Товар в корзине:</h3>
-      		<p class="popup__text"></p>
-      		<div class="popup__buttons">
-        		<button class="popup__btn btn--continue btn">Продолжить покупки</button>
-        		<button class="popup__btn btn--cart btn">В корзину</button>
-      		</div>
+					<button class="popup__btn btn--close btn" data-element="btn">x</button>
+				  <h3 class="popup__title">Характеристики:</h3>
+  				<div class="properties-list" data-element="list"></div>
 				</div>
       </div>
     </div>
@@ -484,8 +535,121 @@ class PopupBuy extends Popup {
   }
 }
 
-class PopupImage extends Popup {}
+class PropertyItem {
+  _element = null;
+  _subElements = {};
+
+  constructor({ key, text, value, unit }) {
+    this._key = key;
+    this._text = text;
+    this._value = value;
+    this._unit = unit;
+    this._init();
+  }
+
+  _init() {
+    this._element = createElement(this._getTemplate());
+    this._subElements = this._getSubElements();
+  }
+
+  _getTemplate() {
+    return `
+			<div class="product-property">
+				<div class="product-property__icon">
+					<i class="fa-solid fa-angles-right"></i>
+				</div>
+				<div class="product-property__info">
+					<h4 class="product-property__title">${this._text}</h4>
+					<span class="product-property__text">${this._value} ${this._unit}</span>
+				</div>
+			</div>`;
+  }
+
+  get element() {
+    return this._element;
+  }
+
+  _getSubElements() {
+    return Array.from(this._element.querySelectorAll("[data-element]")).reduce((acc, el) => {
+      return {
+        ...acc,
+        [el.getAttribute("data-element")]: el,
+      };
+    }, {});
+  }
+}
+
+class PopupBuy extends Popup {
+  _render(productTitle) {
+    return (this._subElements.text.textContent = `Вы выбрали товар "${productTitle}", хороший выбор!`);
+  }
+
+  open(productTitle) {
+    this._render(productTitle);
+    super.open();
+  }
+
+  _getTemplate() {
+    return `
+		<div class="popup">
+      <div class="popup__wrapper" data-element="wrapper">
+			<div class="popup__container" data-element="container">
+				<button class="popup__btn btn--close btn" data-element="btn">x</button>
+				<h3 class="popup__title">Товар в корзине:</h3>
+      	<p class="popup__text" data-element="text"></p>
+      	<div class="popup__buttons">
+        	<button class="popup__btn btn--continue btn">Продолжить покупки</button>
+        	<button class="popup__btn btn--cart btn">В корзину</button>
+      	</div>
+			</div>
+    </div>
+  </div>
+		`;
+  }
+}
+
+class PopupImage extends Popup {
+  _render(src) {
+    this._subElements.img.src = `img/${src}`;
+  }
+
+  open(src) {
+    this._render(src);
+    super.open();
+  }
+
+  _getTemplate() {
+    return `
+		<div class="popup">
+      <div class="popup__wrapper" data-element="wrapper">
+        <div class="popup__container" data-element="container">
+					<button class="popup__btn btn--close btn" data-element="btn">x</button>
+				  <img class="popup__image" data-element="img" src="" alt="img" />
+				</div>
+      </div>
+    </div>
+		`;
+  }
+}
 
 const root = document.querySelector(".root");
 const popupBuy = new PopupBuy();
-root.insertAdjacentElement("afterbegin", new ProductList(products, Product, Choice, ChoiceItem, Popup).element);
+const popupProperties = new PopupProperties(PropertyItem);
+const popupImage = new PopupImage();
+
+root.addEventListener("addToCart", (e) => {
+  popupBuy.open(e.detail.productTitle);
+});
+
+root.addEventListener("openProperties", (e) => {
+  popupProperties.open(e.detail.properties);
+});
+
+root.addEventListener("openImage", (e) => {
+  popupImage.open(e.detail.src);
+});
+
+root.insertAdjacentElement("afterbegin", new ProductList(products, Product, Choice, ChoiceItem).element);
+root.insertAdjacentElement("afterbegin", popupBuy.element);
+root.insertAdjacentElement("afterbegin", popupProperties.element);
+root.insertAdjacentElement("afterbegin", popupImage.element);
