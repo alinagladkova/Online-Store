@@ -53,9 +53,10 @@ const products = [
       { id: 5, text: 54, unit: "wt" },
     ],
     colors: [
-      { id: 1, text: "white", unit: "", img: "lamp_1_white.jpg" },
-      { id: 2, text: "green", unit: "", img: "lamp_1_green.jpg" },
-      { id: 3, text: "violet", unit: "", img: "lamp_1_violet.jpg" },
+      { id: 1, text: "white", unit: "", img: "extra_white.jpg" },
+      { id: 2, text: "black", unit: "", img: "black.jpg" },
+      { id: 3, text: "grey", unit: "", img: "light_grey.jpg" },
+      { id: 4, text: "metallic", unit: "", img: "metallic.jpg" },
     ],
   },
   {
@@ -112,6 +113,63 @@ const products = [
       { id: 2, text: "black", unit: "", img: "lamp_2_black.jpg" },
     ],
   },
+  {
+    id: 278,
+    title: "Напольный светильник I торшер 60023-24",
+    price: 5748,
+    priceType: "Руб.",
+    description: "Напольная лампа на мраморном основании с деревянной структурой. Возможны несколько вариантов отделки.",
+    properties: [
+      {
+        key: "width",
+        text: "Ширина",
+        value: 45.5,
+        unit: "см",
+      },
+      {
+        key: "height",
+        text: "Высота",
+        value: 90,
+        unit: "см",
+      },
+      {
+        key: "weight",
+        text: "Вес",
+        value: 5.4,
+        unit: "кг",
+      },
+      {
+        key: "voltage",
+        text: "Напряжение",
+        value: 250,
+        unit: "В",
+      },
+      {
+        key: "powerSupply",
+        text: "Источник питания",
+        value: "сеть",
+        type: 1,
+        unit: "",
+      },
+      {
+        key: "colorTemperature",
+        text: "Температура свечения",
+        value: 5000,
+        unit: "в К",
+      },
+    ],
+    watts: [
+      { id: 1, text: 14, unit: "wt" },
+      { id: 2, text: 24, unit: "wt" },
+      { id: 3, text: 34, unit: "wt" },
+      { id: 4, text: 44, unit: "wt" },
+      { id: 5, text: 54, unit: "wt" },
+    ],
+    colors: [
+      { id: 1, text: "white", unit: "", img: "lamp_white.png" },
+      { id: 2, text: "black", unit: "", img: "lamp_black.png" },
+    ],
+  },
 ];
 
 function createElement(html) {
@@ -120,11 +178,34 @@ function createElement(html) {
   return root.firstElementChild;
 }
 
-class ProductList {
+class BasicComponent {
   _element = null;
   _subElements = {};
 
+  constructor() {}
+
+  _init() {
+    this._element = createElement(this._getTemplate());
+    this._subElements = this._getSubElements();
+  }
+
+  _getSubElements() {
+    return Array.from(this._element.querySelectorAll("[data-element]")).reduce((acc, el) => {
+      return {
+        ...acc,
+        [el.getAttribute("data-element")]: el,
+      };
+    }, {});
+  }
+
+  get element() {
+    return this._element;
+  }
+}
+
+class ProductList extends BasicComponent {
   constructor(products, Product, Choice, ChoiceItem, Popup) {
+    super();
     this._products = products;
     this._Product = Product;
     this._Choice = Choice;
@@ -134,8 +215,7 @@ class ProductList {
   }
 
   _init() {
-    this._element = createElement(this._getTemplate());
-    this._subElements = this._getSubElements();
+    super._init();
     this._render();
   }
 
@@ -150,30 +230,9 @@ class ProductList {
   _getTemplate() {
     return `<div class="product-list"></div>`;
   }
-
-  get element() {
-    return this._element;
-  }
-
-  _getSubElements() {
-    return Array.from(this._element.querySelectorAll("[data-element]")).reduce((el, acc) => {
-      return {
-        ...acc,
-        [el.getAttribute("data-element")]: el,
-      };
-    }, {});
-  }
 }
 
-/*
-при нажатии на определенный color.item у нас должна передаваться соотв картинка массива
-она должна отрисовываться в product
-по умолчанию в продукт должна быть первая картинка
-*/
-
-class Product {
-  _element = null;
-  _subElements = {};
+class Product extends BasicComponent {
   _state = {
     favorite: false,
     watts: 1,
@@ -182,6 +241,7 @@ class Product {
   };
 
   constructor({ title, price, priceType, description, properties, watts, colors }, Choice, ChoiceItem) {
+    super();
     this._title = title;
     this._price = price;
     this._priceType = priceType;
@@ -195,8 +255,7 @@ class Product {
   }
 
   _init() {
-    this._element = createElement(this._getTemplate());
-    this._subElements = this._getSubElements();
+    super._init();
     this._addListener();
     this._render();
   }
@@ -301,30 +360,16 @@ class Product {
 			</div>
      </div>`;
   }
-
-  get element() {
-    return this._element;
-  }
-
-  _getSubElements() {
-    return Array.from(this._element.querySelectorAll("[data-element]")).reduce((acc, el) => {
-      return {
-        ...acc,
-        [el.getAttribute("data-element")]: el,
-      };
-    }, {});
-  }
 }
 
-class Choice {
-  _element = null;
-  _subElements = {};
+class Choice extends BasicComponent {
   _state = {
     active: false,
     activeItem: 1,
   };
 
   constructor({ title, data }, ChoiceItem, callback) {
+    super();
     this._title = title;
     this._data = data;
     this._ChoiceItem = ChoiceItem;
@@ -333,8 +378,7 @@ class Choice {
   }
 
   _init() {
-    this._element = createElement(this._getTemplate());
-    this._subElements = this._getSubElements();
+    super._init();
     this._addListener();
   }
 
@@ -379,26 +423,11 @@ class Choice {
       </div>
 		`;
   }
-
-  get element() {
-    return this._element;
-  }
-
-  _getSubElements() {
-    return Array.from(this._element.querySelectorAll("[data-element]")).reduce((acc, el) => {
-      return {
-        ...acc,
-        [el.getAttribute("data-element")]: el,
-      };
-    }, {});
-  }
 }
 
-class ChoiceItem {
-  _element = null;
-  _subElements = {};
-
+class ChoiceItem extends BasicComponent {
   constructor({ id, text, unit, active }, itemId) {
+    super();
     this._id = id;
     this._text = text;
     this._unit = unit;
@@ -408,8 +437,7 @@ class ChoiceItem {
   }
 
   _init() {
-    this._element = createElement(this._getTemplate());
-    this._subElements = this._getSubElements();
+    super._init();
     this._addListener();
   }
 
@@ -422,33 +450,18 @@ class ChoiceItem {
   _getTemplate() {
     return `<li class="choice-item ${this._active ? "choice-item--active" : ""}" data-key="${this._id}">${this._text}${this._unit}</li>`;
   }
-
-  get element() {
-    return this._element;
-  }
-
-  _getSubElements() {
-    return Array.from(this._element.querySelectorAll("[data-element]")).reduce((acc, el) => {
-      return {
-        ...acc,
-        [el.getAttribute("data-element")]: el,
-      };
-    }, {});
-  }
 }
 
-class Popup {
-  _element = null;
-  _subElements = {};
+class Popup extends BasicComponent {
   _state = {};
 
   constructor() {
+    super();
     this._init();
   }
 
   _init() {
-    this._element = createElement(this._getTemplate());
-    this._subElements = this._getSubElements();
+    super._init();
     this._handleKeyDocument = this._handleKeyDocument.bind(this);
     this._addListeners();
   }
@@ -481,19 +494,6 @@ class Popup {
 
   _getTemplate() {
     return `it's base template. Change it.`;
-  }
-
-  get element() {
-    return this._element;
-  }
-
-  _getSubElements() {
-    return Array.from(this._element.querySelectorAll("[data-element]")).reduce((acc, el) => {
-      return {
-        ...acc,
-        [el.getAttribute("data-element")]: el,
-      };
-    }, {});
   }
 }
 
@@ -535,11 +535,9 @@ class PopupProperties extends Popup {
   }
 }
 
-class PropertyItem {
-  _element = null;
-  _subElements = {};
-
+class PropertyItem extends BasicComponent {
   constructor({ key, text, value, unit }) {
+    super();
     this._key = key;
     this._text = text;
     this._value = value;
@@ -548,8 +546,7 @@ class PropertyItem {
   }
 
   _init() {
-    this._element = createElement(this._getTemplate());
-    this._subElements = this._getSubElements();
+    super._init();
   }
 
   _getTemplate() {
@@ -563,19 +560,6 @@ class PropertyItem {
 					<span class="product-property__text">${this._value} ${this._unit}</span>
 				</div>
 			</div>`;
-  }
-
-  get element() {
-    return this._element;
-  }
-
-  _getSubElements() {
-    return Array.from(this._element.querySelectorAll("[data-element]")).reduce((acc, el) => {
-      return {
-        ...acc,
-        [el.getAttribute("data-element")]: el,
-      };
-    }, {});
   }
 }
 
@@ -632,10 +616,130 @@ class PopupImage extends Popup {
   }
 }
 
+class Header extends BasicComponent {
+  constructor(miniCart, Search) {
+    super();
+    this._miniCart = miniCart;
+    // this._search = new Search();
+    this._init();
+  }
+
+  _init() {
+    super._init();
+    this._render();
+  }
+
+  _render() {
+    this._subElements.miniCart.insertAdjacentElement("afterbegin", this._miniCart.element);
+    // this._subElements.search.insertAdjacentElement("afterbegin", this._search.element);
+  }
+  _getTemplate() {
+    return `
+		    <header class="header">
+        	<div class="header__logo">
+          	<i class="fa-regular fa-lightbulb"></i>
+						<span class="header__logo-name">Lamp</span>
+        	</div>
+					<nav class="header__menu">
+						<ul class="menu__list">
+							<li class="menu__item">Главная</li>
+							<li class="menu__item">Каталог</li>
+							<li class="menu__item">Контакты</li>
+						</ul>
+					</nav>
+					<div class="header__actions">
+						<div class="header__search" data-element="search"></div>
+						<div class="header__mini-cart" data-element="miniCart"></div>
+					</div>
+      	</header>`;
+  }
+}
+class MiniCart extends BasicComponent {
+  _state = {
+    active: false,
+    totalPrice: 0,
+    totalAmount: [],
+  };
+  constructor() {
+    super();
+    this._init();
+  }
+
+  _init() {
+    super._init();
+    this._handleClickDocument = this._handleClickDocument.bind(this);
+    this._handleKeykDocument = this._handleKeyDocument.bind(this);
+  }
+
+  _addListeners() {
+    this._subElements.wrapper.addEventListener("click", () => {
+      document.addEventListener("click", this._handleClickDocument);
+      document.addEventListener("keydown", this._handleKeyDocument);
+      this._setStateActive();
+    });
+  }
+
+  _render() {
+    this._state.active ? this._open() : this._close();
+  }
+
+  _setStateActive() {
+    this._state.active = !this._state.active;
+  }
+
+  _handleClickDocument(e) {
+    if (!e.target.closest(".mini-cart")) {
+      this._close();
+    }
+  }
+
+  _handleKeyDocument(e) {
+    if (e.key === "Escape") {
+      this._close();
+    }
+  }
+  _open() {
+    this._subElements.productsWrapper.classList.add("mini-cart__products-wrapper--active");
+  }
+
+  _close() {
+    document.removeEventListener("click", this._handleClickDocument);
+    document.removeEventListener("keydown", this._handleKeyDocument);
+    this._subElements.productsWrapper.classList.remove("mini-cart__products-wrapper--active");
+  }
+
+  _getTemplate() {
+    return `
+		<div class="mini-cart">
+			<div class="mini-cart__wrapper" data-element="wrapper">
+        <div class="mini-cart__icon" data-element="icon">
+          <i class="fa-solid fa-cart-shopping"></i>
+        </div>
+				<div class="mini-cart__info">
+					<span class="mini-cart__price" data-element="price"></span>
+					<span class="mini-cart__product" data-element="product"></span>
+				</div>
+			</div>
+      <div class="mini-cart__products-wrapper" data-element="productsWrapper">
+        <h3 class="mini-cart__title">Товары в корзине:</h3>
+        <div class="mini-cart__list" data-element="cartList"></div>
+        <button class="btn btn--order" data-element="btn">Оформить заказ</button>
+      </div>
+    </div>
+		`;
+  }
+}
+class MiniCartItem extends BasicComponent {}
+class AlertList extends BasicComponent {}
+class Alert extends BasicComponent {}
+class Search extends BasicComponent {}
+
 const root = document.querySelector(".root");
 const popupBuy = new PopupBuy();
 const popupProperties = new PopupProperties(PropertyItem);
 const popupImage = new PopupImage();
+
+const miniCart = new MiniCart();
 
 root.addEventListener("addToCart", (e) => {
   popupBuy.open(e.detail.productTitle);
@@ -649,7 +753,8 @@ root.addEventListener("openImage", (e) => {
   popupImage.open(e.detail.src);
 });
 
-root.insertAdjacentElement("afterbegin", new ProductList(products, Product, Choice, ChoiceItem).element);
+root.insertAdjacentElement("afterbegin", new Header(miniCart).element);
+root.insertAdjacentElement("beforeend", new ProductList(products, Product, Choice, ChoiceItem).element);
 root.insertAdjacentElement("afterbegin", popupBuy.element);
 root.insertAdjacentElement("afterbegin", popupProperties.element);
 root.insertAdjacentElement("afterbegin", popupImage.element);
