@@ -172,6 +172,55 @@ const products = [
   },
 ];
 
+const filterCategories = [
+  {
+    key: "price",
+    text: "Цена",
+    unit: "руб",
+    // 1 - input от/до 2 - select
+    groupType: 1,
+  },
+  {
+    key: "width",
+    text: "Ширина",
+    unit: "см",
+    // 1 - input от/до 2 - select
+    groupType: 1,
+  },
+  {
+    key: "height",
+    text: "Высота",
+    unit: "см",
+    groupType: 1,
+  },
+  {
+    key: "weight",
+    text: "Вес",
+    unit: "кг",
+    groupType: 1,
+  },
+  {
+    key: "voltage",
+    text: "Напряжение",
+    unit: "В",
+    groupType: 2,
+  },
+  {
+    key: "powerSupply",
+    text: "Источник питания",
+    // 1 - сеть, 2 - батарейки, 3- аккум
+    type: 1,
+    unit: "",
+    groupType: 2,
+  },
+  {
+    key: "colorTemperature",
+    text: "Температура свечения",
+    unit: "в К",
+    groupType: 2,
+  },
+];
+
 function createElement(html) {
   const root = document.createElement("div");
   root.insertAdjacentHTML("beforeend", html);
@@ -885,6 +934,7 @@ class MiniCartItem extends BasicComponent {
 		`;
   }
 }
+
 class AlertList extends BasicComponent {
   _state = {
     alertQueue: [],
@@ -962,6 +1012,7 @@ class AlertList extends BasicComponent {
 						</div>`;
   }
 }
+
 class Alert extends BasicComponent {
   _timerId;
   _callback;
@@ -1019,6 +1070,7 @@ class Alert extends BasicComponent {
         		</div>`;
   }
 }
+
 class Search extends BasicComponent {
   _state = {
     active: false,
@@ -1101,8 +1153,196 @@ class Search extends BasicComponent {
   }
 }
 
+class Filter extends BasicComponent {
+  constructor(filterCategories, FilterWrapper, FilterFieldGroup, FilterControlLabel, FilterControlField, FormControlSelect, Option) {
+    super();
+    this._filterCategories = filterCategories;
+    this._FilterWrapper = FilterWrapper;
+    this._FilterFieldGroup = FilterFieldGroup;
+    this._FilterControlLabel = FilterControlLabel;
+    this._FilterControlField = FilterControlField;
+    this._FormControlSelect = FormControlSelect;
+    this._Option = Option;
+
+    this._init();
+  }
+
+  _init() {
+    super._init();
+    this._render();
+  }
+
+  _generateItems() {
+    return this._filterCategories.map(
+      (category) =>
+        new this._FilterWrapper(category, this._FilterFieldGroup, this._FilterControlLabel, this._FilterControlField, this._FormControlSelect, this._Option)
+          .element
+    );
+  }
+
+  _render() {
+    // this._element.innerHTML = '';
+    this._element.append(...this._generateItems());
+  }
+
+  _getTemplate() {
+    return `<form class="filter" action="#" method="post"></form>`;
+  }
+}
+
+class FilterWrapper extends BasicComponent {
+  constructor({ key, text, unit, groupType }, FilterFieldGroup, FilterControlLabel, FilterControlField, FormControlSelect, Option) {
+    super();
+    this._key = key;
+    this._text = text;
+    this._unit = unit;
+    this._groupType = groupType;
+    this._FilterFieldGroup = FilterFieldGroup;
+    this._FilterControlLabel = FilterControlLabel;
+    this._FilterControlField = FilterControlField;
+    this._FormControlSelect = FormControlSelect;
+    this._Option = Option;
+
+    this._init();
+  }
+
+  _init() {
+    super._init();
+    this._render();
+  }
+
+  _render() {
+    if (this._groupType === 1) {
+      this._subElements.holder.insertAdjacentElement(
+        "beforeend",
+        new this._FilterFieldGroup({ key: this._key, textMarker: "от", forMarker: "from" }, this._FilterControlLabel, this._FilterControlField).element
+      );
+      this._subElements.holder.insertAdjacentElement(
+        "beforeend",
+        new this._FilterFieldGroup({ key: this._key, textMarker: "до", forMarker: "to" }, this._FilterControlLabel, this._FilterControlField).element
+      );
+    }
+
+    if (this._groupType === 2) {
+      this._subElements.holder.insertAdjacentElement("beforeend", new this._FormControlSelect(this._Option).element);
+    }
+  }
+
+  _getTemplate() {
+    return `<div class="filter-wrapper">
+							<h4 class="filter-wrapper__title">${this._text}</h4>
+							<div class="filter-wrapper__holder" data-element="holder"></div>
+						</div>`;
+  }
+}
+
+class FilterFieldGroup extends BasicComponent {
+  constructor({ key, textMarker, forMarker }, FilterControlLabel, FilterControlField) {
+    super();
+    this._key = key;
+    this._textMarker = textMarker;
+    this._forMarker = forMarker;
+    this._FilterControlLabel = FilterControlLabel;
+    this._FilterControlField = FilterControlField;
+    this._init();
+  }
+
+  _init() {
+    super._init();
+    this._render();
+  }
+
+  _render() {
+    this._element.insertAdjacentElement(
+      "beforeend",
+      new this._FilterControlLabel({ key: this._key, textMarker: this._textMarker, forMarker: this._forMarker }).element
+    );
+    this._element.insertAdjacentElement("beforeend", new this._FilterControlField({ key: this._key, forMarker: this._forMarker }).element);
+  }
+
+  _getTemplate() {
+    return `<div class="filter-field-group"></div>`;
+  }
+}
+
+class FilterControlLabel extends BasicComponent {
+  constructor({ key, textMarker, forMarker }) {
+    super();
+    this._key = key;
+    this._textMarker = textMarker;
+    this._forMarker = forMarker;
+    this._init();
+  }
+
+  _init() {
+    super._init();
+  }
+
+  _getTemplate() {
+    return `<label class="form-control-label" for="${this._forMarker}-${this._key}">${this._textMarker}</label>`;
+  }
+}
+
+class FilterControlField extends BasicComponent {
+  _state = {
+    type: "",
+  };
+
+  constructor({ key, forMarker }) {
+    super();
+    this._key = key;
+    this._forMarker = forMarker;
+    this._init();
+  }
+
+  _init() {
+    super._init();
+  }
+
+  _getTemplate() {
+    return `<input class="form-control-field" name="${this._forMarker}-${this._key}" type="number" id="${this._forMarker}-${this._key}" placeholder="0" />`;
+  }
+}
+
+class FormControlSelect extends BasicComponent {
+  constructor(Option) {
+    super();
+    this._Option = Option;
+    this._init();
+  }
+
+  _init() {
+    super._init();
+    this._render();
+  }
+
+  _render() {
+    this._element.insertAdjacentElement("beforeend", new this._Option().element);
+  }
+
+  _getTemplate() {
+    return `<select class="form-control-select" name="property"></select>`;
+  }
+}
+
+class Option extends BasicComponent {
+  constructor() {
+    super();
+    this._init();
+  }
+
+  _init() {
+    super._init();
+  }
+
+  _getTemplate() {
+    return `<option value="230">230</option>`;
+  }
+}
+
 const root = document.querySelector(".root");
 const productList = new ProductList(Product, products, Choice, ChoiceItem);
+const filter = new Filter(filterCategories, FilterWrapper, FilterFieldGroup, FilterControlLabel, FilterControlField, FormControlSelect, Option);
 const popupBuy = new PopupBuy();
 const popupProperties = new PopupProperties(PropertyItem);
 const popupImage = new PopupImage();
@@ -1153,11 +1393,12 @@ function debounce(handler, ms) {
   };
 }
 
+root.insertAdjacentElement("beforeend", new Header(miniCart, Search).element);
+root.insertAdjacentElement("beforeend", filter.element);
 root.insertAdjacentElement("beforeend", productList.element);
-root.insertAdjacentElement("afterbegin", new Header(miniCart, Search).element);
-root.insertAdjacentElement("afterbegin", popupBuy.element);
-root.insertAdjacentElement("afterbegin", popupProperties.element);
-root.insertAdjacentElement("afterbegin", popupImage.element);
+root.insertAdjacentElement("beforeend", popupBuy.element);
+root.insertAdjacentElement("beforeend", popupProperties.element);
+root.insertAdjacentElement("beforeend", popupImage.element);
 root.insertAdjacentElement("beforeend", alertList.element);
 
 //удаляет 2 товара из миникарта при повторном клике, исправить
