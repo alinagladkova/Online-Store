@@ -661,7 +661,7 @@ img {
   display: flex;
   flex-wrap: wrap;
   width: 100%;
-  margin-top: 30px;
+  /* margin-top: 30px; */
 }
 
 .filter-wrapper {
@@ -716,4 +716,9 @@ input[type="number"] {
   padding: 5px 10px;
   margin-top: 17px;
   width: 100%;
+}
+
+option {
+  color: #fff;
+  background-color: #659999;
 }

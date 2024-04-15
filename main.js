@@ -2,47 +2,59 @@
 
 const products = [
   {
+    id: 2334,
     title: "Рабочая лампа на струбцине KD-312",
     price: 1148,
     priceType: "Руб.",
     description: "Рабочая лампа на струбцине KD-312 белого цвета служит для освещения рабочего места дома и в офисе.",
     properties: [
       {
+        key: "price",
+        text: "Стоимость",
+        unit: "руб",
+        groupType: 1,
+      },
+      {
         key: "width",
         text: "Ширина",
         value: 12.5,
         unit: "см",
+        groupType: 1,
       },
       {
         key: "height",
         text: "Высота",
         value: 41,
         unit: "см",
+        groupType: 1,
       },
       {
         key: "weight",
         text: "Вес",
         value: 1.449,
         unit: "кг",
+        groupType: 1,
       },
       {
         key: "voltage",
         text: "Напряжение",
         value: 230,
         unit: "В",
+        groupType: 2,
       },
       {
         key: "powerSupply",
         text: "Источник питания",
         value: "сеть",
-        type: 1,
         unit: "",
+        groupType: 2,
       },
       {
         key: "colorTemperature",
         text: "Температура свечения",
         value: 4000,
         unit: "в К",
+        groupType: 2,
       },
     ],
     watts: [
@@ -60,47 +72,59 @@ const products = [
     ],
   },
   {
+    id: 2345,
     title: "Настольная лампа светодиодная Эра LED-506-10W-W регулируемый",
     price: 997,
     priceType: "Руб.",
     description: "предназначена для установки на столе в рабочем кабинете, парте школьника. Оснащена широким и устойчивым основанием",
     properties: [
       {
+        key: "price",
+        text: "Стоимость",
+        unit: "руб",
+        groupType: 1,
+      },
+      {
         key: "width",
         text: "Ширина",
         value: 13.5,
         unit: "см",
+        groupType: 1,
       },
       {
         key: "height",
         text: "Высота",
         value: 43,
         unit: "см",
+        groupType: 1,
       },
       {
         key: "weight",
         text: "Вес",
         value: 2.449,
         unit: "кг",
+        groupType: 1,
       },
       {
         key: "voltage",
         text: "Напряжение",
         value: 220,
         unit: "В",
+        groupType: 2,
       },
       {
         key: "powerSupply",
         text: "Источник питания",
         value: "батарейки",
-        type: 2,
         unit: "",
+        groupType: 2,
       },
       {
         key: "colorTemperature",
         text: "Температура свечения",
         value: 4000,
         unit: "в К",
+        groupType: 2,
       },
     ],
     watts: [
@@ -121,41 +145,52 @@ const products = [
     description: "Напольная лампа на мраморном основании с деревянной структурой. Возможны несколько вариантов отделки.",
     properties: [
       {
+        key: "price",
+        text: "Стоимость",
+        unit: "руб",
+        groupType: 1,
+      },
+      {
         key: "width",
         text: "Ширина",
         value: 45.5,
         unit: "см",
+        groupType: 1,
       },
       {
         key: "height",
         text: "Высота",
         value: 90,
         unit: "см",
+        groupType: 1,
       },
       {
         key: "weight",
         text: "Вес",
         value: 5.4,
         unit: "кг",
+        groupType: 1,
       },
       {
         key: "voltage",
         text: "Напряжение",
         value: 250,
         unit: "В",
+        groupType: 2,
       },
       {
         key: "powerSupply",
         text: "Источник питания",
         value: "сеть",
-        type: 1,
         unit: "",
+        groupType: 2,
       },
       {
         key: "colorTemperature",
         text: "Температура свечения",
         value: 5000,
         unit: "в К",
+        groupType: 2,
       },
     ],
     watts: [
@@ -173,18 +208,17 @@ const products = [
 ];
 
 const filterCategories = [
+  // 1 - input от/до 2 - select
   {
     key: "price",
     text: "Цена",
     unit: "руб",
-    // 1 - input от/до 2 - select
     groupType: 1,
   },
   {
     key: "width",
     text: "Ширина",
     unit: "см",
-    // 1 - input от/до 2 - select
     groupType: 1,
   },
   {
@@ -203,20 +237,73 @@ const filterCategories = [
     key: "voltage",
     text: "Напряжение",
     unit: "В",
+    options: [
+      {
+        value: 220,
+        text: 220,
+      },
+      {
+        value: 230,
+        text: 230,
+      },
+      {
+        value: 250,
+        text: 250,
+      },
+    ],
     groupType: 2,
   },
   {
     key: "powerSupply",
     text: "Источник питания",
-    // 1 - сеть, 2 - батарейки, 3- аккум
     type: 1,
     unit: "",
+    options: [
+      {
+        value: 1,
+        text: "батарейки",
+      },
+      {
+        value: 2,
+        text: "аккумулятор",
+      },
+      {
+        value: 3,
+        text: "сеть",
+      },
+    ],
     groupType: 2,
   },
   {
     key: "colorTemperature",
     text: "Температура свечения",
     unit: "в К",
+    options: [
+      {
+        value: 1000,
+        text: 1000,
+      },
+      {
+        value: 2000,
+        text: 2000,
+      },
+      {
+        value: 3000,
+        text: 3000,
+      },
+      {
+        value: 4000,
+        text: 4000,
+      },
+      {
+        value: 5000,
+        text: 5000,
+      },
+      {
+        value: 6000,
+        text: 6000,
+      },
+    ],
     groupType: 2,
   },
 ];
@@ -1154,7 +1241,7 @@ class Search extends BasicComponent {
 }
 
 class Filter extends BasicComponent {
-  constructor(filterCategories, FilterWrapper, FilterFieldGroup, FilterControlLabel, FilterControlField, FormControlSelect, Option) {
+  constructor(filterCategories, FilterWrapper, FilterFieldGroup, FilterControlLabel, FilterControlField, FormControlSelect, Option, filterBetween) {
     super();
     this._filterCategories = filterCategories;
     this._FilterWrapper = FilterWrapper;
@@ -1163,7 +1250,7 @@ class Filter extends BasicComponent {
     this._FilterControlField = FilterControlField;
     this._FormControlSelect = FormControlSelect;
     this._Option = Option;
-
+    this._filterBetween = filterBetween;
     this._init();
   }
 
@@ -1172,16 +1259,42 @@ class Filter extends BasicComponent {
     this._render();
   }
 
+  _setStateFilterData(obj) {
+    this._state.filterData = {
+      ...this._state.filterData,
+      ...obj,
+    };
+  }
+
+  _setStateFilterDataHandler(obj) {
+    this._setStateFilterData(obj);
+
+    this._element.dispatchEvent(
+      new CustomEvent("filter", {
+        bubbles: true,
+        detail: this._state.filterData,
+      })
+    );
+    console.log(this._state);
+  }
+
   _generateItems() {
     return this._filterCategories.map(
       (category) =>
-        new this._FilterWrapper(category, this._FilterFieldGroup, this._FilterControlLabel, this._FilterControlField, this._FormControlSelect, this._Option)
-          .element
+        new this._FilterWrapper(
+          category,
+          this._FilterFieldGroup,
+          this._FilterControlLabel,
+          this._FilterControlField,
+          this._FormControlSelect,
+          this._Option,
+          this._filterBetween,
+          this._setStateFilterDataHandler.bind(this)
+        ).element
     );
   }
 
   _render() {
-    // this._element.innerHTML = '';
     this._element.append(...this._generateItems());
   }
 
@@ -1191,59 +1304,103 @@ class Filter extends BasicComponent {
 }
 
 class FilterWrapper extends BasicComponent {
-  constructor({ key, text, unit, groupType }, FilterFieldGroup, FilterControlLabel, FilterControlField, FormControlSelect, Option) {
+  constructor(category, FilterFieldGroup, FilterControlLabel, FilterControlField, FormControlSelect, Option, filterBetween, setStateFilterDataHandler) {
     super();
-    this._key = key;
-    this._text = text;
-    this._unit = unit;
-    this._groupType = groupType;
+    this._category = category;
     this._FilterFieldGroup = FilterFieldGroup;
     this._FilterControlLabel = FilterControlLabel;
     this._FilterControlField = FilterControlField;
     this._FormControlSelect = FormControlSelect;
     this._Option = Option;
-
+    this._filterBetween = filterBetween;
+    this._setStateFilterDataHandler = setStateFilterDataHandler;
     this._init();
   }
 
   _init() {
     super._init();
+    if (this._category.groupType === 1) {
+      this._setStateProperty({
+        [this._category.key]: {
+          min: this._filterBetween[this._category.key].at(0),
+          max: this._filterBetween[this._category.key].at(1),
+        },
+      });
+    } else if (this._category.groupType === 2) {
+      this._setStateProperty({ [this._category.key]: this._category.options[0].value });
+    }
     this._render();
   }
 
+  _setStateProperty(obj) {
+    this._state = obj;
+  }
+
+  _setStateBetweenProperty({ key, position, value }) {
+    if (this._state[key]) {
+      this._state[key][position] = value;
+    }
+  }
+
+  _setStateFilterWrapperBetweenHandler = (obj) => {
+    this._setStateBetweenProperty(obj);
+    this._setStateFilterDataHandler(this._state);
+  };
+
+  _setStateFilterWrapperHandler(obj) {
+    this._setStateProperty(obj);
+    this._setStateFilterDataHandler(this._state);
+  }
+
   _render() {
-    if (this._groupType === 1) {
+    if (this._category.groupType === 1) {
       this._subElements.holder.insertAdjacentElement(
         "beforeend",
-        new this._FilterFieldGroup({ key: this._key, textMarker: "от", forMarker: "from" }, this._FilterControlLabel, this._FilterControlField).element
+        new this._FilterFieldGroup(
+          { key: this._category.key, textMarker: "от", forMarker: "from", placeholder: this._filterBetween[this._category.key].at(0), position: "min" },
+          this._FilterControlLabel,
+          this._FilterControlField,
+          this._setStateFilterWrapperBetweenHandler.bind(this)
+        ).element
       );
       this._subElements.holder.insertAdjacentElement(
         "beforeend",
-        new this._FilterFieldGroup({ key: this._key, textMarker: "до", forMarker: "to" }, this._FilterControlLabel, this._FilterControlField).element
+        new this._FilterFieldGroup(
+          { key: this._category.key, textMarker: "до", forMarker: "to", placeholder: this._filterBetween[this._category.key].at(-1), position: "max" },
+          this._FilterControlLabel,
+          this._FilterControlField,
+          this._setStateFilterWrapperBetweenHandler.bind(this)
+        ).element
       );
     }
 
-    if (this._groupType === 2) {
-      this._subElements.holder.insertAdjacentElement("beforeend", new this._FormControlSelect(this._Option).element);
+    if (this._category.groupType === 2) {
+      this._subElements.holder.insertAdjacentElement(
+        "beforeend",
+        new this._FormControlSelect(this._category, this._Option, this._setStateFilterWrapperHandler.bind(this)).element
+      );
     }
   }
 
   _getTemplate() {
     return `<div class="filter-wrapper">
-							<h4 class="filter-wrapper__title">${this._text}</h4>
+							<h4 class="filter-wrapper__title">${this._category.text}</h4>
 							<div class="filter-wrapper__holder" data-element="holder"></div>
 						</div>`;
   }
 }
 
 class FilterFieldGroup extends BasicComponent {
-  constructor({ key, textMarker, forMarker }, FilterControlLabel, FilterControlField) {
+  constructor({ key, textMarker, forMarker, placeholder, position }, FilterControlLabel, FilterControlField, setStateFilterWrapperBetweenHandler) {
     super();
     this._key = key;
     this._textMarker = textMarker;
     this._forMarker = forMarker;
+    this._placeholder = placeholder;
+    this._position = position;
     this._FilterControlLabel = FilterControlLabel;
     this._FilterControlField = FilterControlField;
+    this._setStateFilterWrapperBetweenHandler = setStateFilterWrapperBetweenHandler;
     this._init();
   }
 
@@ -1257,7 +1414,13 @@ class FilterFieldGroup extends BasicComponent {
       "beforeend",
       new this._FilterControlLabel({ key: this._key, textMarker: this._textMarker, forMarker: this._forMarker }).element
     );
-    this._element.insertAdjacentElement("beforeend", new this._FilterControlField({ key: this._key, forMarker: this._forMarker }).element);
+    this._element.insertAdjacentElement(
+      "beforeend",
+      new this._FilterControlField(
+        { key: this._key, forMarker: this._forMarker, placeholder: this._placeholder, position: this._position },
+        this._setStateFilterWrapperBetweenHandler
+      ).element
+    );
   }
 
   _getTemplate() {
@@ -1285,49 +1448,92 @@ class FilterControlLabel extends BasicComponent {
 
 class FilterControlField extends BasicComponent {
   _state = {
-    type: "",
+    propertyKey: [],
+    propertyValue: [],
   };
 
-  constructor({ key, forMarker }) {
+  constructor({ key, forMarker, placeholder, position }, setStateFilterWrapperBetweenHandler) {
     super();
     this._key = key;
     this._forMarker = forMarker;
+    this._placeholder = placeholder;
+    this._position = position;
+    this._setStateFilterWrapperBetweenHandler = setStateFilterWrapperBetweenHandler;
     this._init();
   }
 
   _init() {
     super._init();
+    this._addListeners();
+  }
+
+  _addListeners() {
+    this._element.addEventListener("input", (e) => {
+      this._setStateFilterWrapperBetweenHandler({
+        key: this._key,
+        position: this._position,
+        value: +e.target.value,
+      });
+    });
   }
 
   _getTemplate() {
-    return `<input class="form-control-field" name="${this._forMarker}-${this._key}" type="number" id="${this._forMarker}-${this._key}" placeholder="0" />`;
+    return `<input class="form-control-field" name="${this._forMarker}-${this._key}" type="number" id="${this._forMarker}-${this._key}" placeholder="${this._placeholder}" />`;
   }
 }
 
 class FormControlSelect extends BasicComponent {
-  constructor(Option) {
+  _state = {
+    value: undefined,
+  };
+
+  constructor(category, Option, setStateFilterWrapperHandler) {
     super();
+    this._category = category;
     this._Option = Option;
+    this._setStateFilterWrapperHandler = setStateFilterWrapperHandler;
     this._init();
   }
 
   _init() {
     super._init();
     this._render();
+    this._addListeners();
+  }
+
+  _addListeners() {
+    this._element.addEventListener("change", (e) => {
+      this._setStateValue(+e.target.value);
+      this._setStateFilterWrapperHandler({
+        [this._category.key]: +e.target.value,
+      });
+    });
+  }
+
+  _setStateValue(value) {
+    this._state.value = value;
+  }
+
+  _generateOptions() {
+    return this._category.options.map((option) => {
+      return new this._Option(option).element;
+    });
   }
 
   _render() {
-    this._element.insertAdjacentElement("beforeend", new this._Option().element);
+    this._element.append(...this._generateOptions());
   }
 
   _getTemplate() {
-    return `<select class="form-control-select" name="property"></select>`;
+    return `<select class="form-control-select" name="${this._category.key}"></select>`;
   }
 }
 
 class Option extends BasicComponent {
-  constructor() {
+  constructor({ value, text }) {
     super();
+    this._value = value;
+    this._text = text;
     this._init();
   }
 
@@ -1336,19 +1542,29 @@ class Option extends BasicComponent {
   }
 
   _getTemplate() {
-    return `<option value="230">230</option>`;
+    return `<option value="${this._value}">${this._text}</option>`;
   }
 }
 
 const root = document.querySelector(".root");
 const productList = new ProductList(Product, products, Choice, ChoiceItem);
-const filter = new Filter(filterCategories, FilterWrapper, FilterFieldGroup, FilterControlLabel, FilterControlField, FormControlSelect, Option);
+const filter = new Filter(
+  filterCategories,
+  FilterWrapper,
+  FilterFieldGroup,
+  FilterControlLabel,
+  FilterControlField,
+  FormControlSelect,
+  Option,
+  getFilterBetween(products)
+);
 const popupBuy = new PopupBuy();
 const popupProperties = new PopupProperties(PropertyItem);
 const popupImage = new PopupImage();
 const miniCart = new MiniCart(MiniCartItem);
 const alertList = new AlertList();
 
+//================Custom Events
 root.addEventListener("buy", (e) => {
   popupBuy.open(e.detail.productTitle);
 });
@@ -1376,8 +1592,12 @@ root.addEventListener("removeMiniCartItem", (e) => {
 });
 
 root.addEventListener("getInput", (e) => {
-  const searchFieldHandler = debounce(() => productList.update(e.detail.inputValue), 3000);
-  searchFieldHandler();
+  productList.update(e.detail.inputValue);
+});
+
+root.addEventListener("filter", (e) => {
+  console.log(e.detail);
+  // productList.updateFilter(e.detail);
 });
 
 //================Debounce
@@ -1391,6 +1611,34 @@ function debounce(handler, ms) {
       return handler.apply(this, args);
     }, ms);
   };
+}
+
+//================Filter
+function getFilterBetween(products) {
+  const temporaryArr = [];
+
+  products.forEach((product) => {
+    product.properties.forEach((property) => {
+      if (property.groupType === 1) {
+        temporaryArr.push(property);
+        if (property.value === undefined) {
+          property.value = product.price;
+        }
+      }
+    });
+  });
+  console.log(temporaryArr);
+  return temporaryArr.reduce((acc, el) => {
+    if (acc[el.key] === undefined) {
+      acc[el.key] = [el.value];
+    } else {
+      acc[el.key] = [...acc[el.key], el.value];
+    }
+
+    acc[el.key].sort((a, b) => a - b);
+    acc[el.key] = [...acc[el.key].slice(0, 1), ...acc[el.key].slice(-1)];
+    return acc;
+  }, {});
 }
 
 root.insertAdjacentElement("beforeend", new Header(miniCart, Search).element);
