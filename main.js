@@ -43,9 +43,10 @@ const products = [
         groupType: 2,
       },
       {
+        // 1 - сеть, 2 - батарейки, 3- аккум
         key: "powerSupply",
         text: "Источник питания",
-        value: "сеть",
+        value: 1,
         unit: "",
         groupType: 2,
       },
@@ -115,7 +116,7 @@ const products = [
       {
         key: "powerSupply",
         text: "Источник питания",
-        value: "батарейки",
+        value: 2,
         unit: "",
         groupType: 2,
       },
@@ -181,7 +182,7 @@ const products = [
       {
         key: "powerSupply",
         text: "Источник питания",
-        value: "сеть",
+        value: 1,
         unit: "",
         groupType: 2,
       },
@@ -340,6 +341,10 @@ class BasicComponent {
 }
 
 class ProductList extends BasicComponent {
+  _state = {
+    filter: {},
+  };
+
   constructor(Product, products, Choice, ChoiceItem) {
     super();
     this._products = products;
@@ -354,22 +359,19 @@ class ProductList extends BasicComponent {
     this._render();
   }
 
-  _render() {
-    this._element.append(...this._addProduct());
+  _setStateFilter(filterParams) {
+    this._state.filter = { ...this._state.filter, ...filterParams };
   }
 
-  update(inputValue) {
+  _render() {
     this._element.innerHTML = "";
-    this._element.append(...this._getInputValue(inputValue));
+    this._element.append(...this._addProducts());
     this._emptyList();
   }
 
-  _getInputValue(inputValue) {
-    return this._products
-      .filter((product) => {
-        return product.title.toLowerCase().includes(inputValue);
-      })
-      .map((product) => new this._Product(product, this._Choice, this._ChoiceItem, inputValue).element);
+  update(filterParams) {
+    this._setStateFilter(filterParams);
+    this._render();
   }
 
   _emptyList() {
@@ -377,9 +379,33 @@ class ProductList extends BasicComponent {
       return (this._element.innerHTML = `<div class="products-list__empty">Товар не найден</div>`);
     }
   }
+  _getFilterValue(filterParams) {
+    return (product) => {
+      return Object.keys(filterParams).every((key) => {
+        const currentProperty = product.properties.find((property) => property.key === key);
+        if (currentProperty === undefined) {
+          return;
+        }
+        return (
+          filterParams[key] === currentProperty.value ||
+          (typeof filterParams[key] === "object" && filterParams[key].min <= currentProperty.value && filterParams[key].max >= currentProperty.value) ||
+          (Array.isArray(filterParams[key]) && filterParams[key].includes(currentProperty.value))
+        );
+      });
+    };
+  }
 
-  _addProduct() {
-    return this._products.map((product) => new this._Product(product, this._Choice, this._ChoiceItem).element);
+  _addProducts() {
+    if (this._state.filter.searchText && this._state.filter.searchText.length > 0) {
+      return this._products
+        .filter((product) => {
+          return product.title.toLowerCase().includes(this._state.filter.searchText);
+        })
+        .map((product) => new this._Product(product, this._Choice, this._ChoiceItem, this._state.filter.searchText).element);
+    }
+    return this._products
+      .filter(this._getFilterValue(this._state.filter))
+      .map((product) => new this._Product(product, this._Choice, this._ChoiceItem, this._state.filter.searchText).element);
   }
 
   _getTemplate() {
@@ -395,7 +421,7 @@ class Product extends BasicComponent {
     isFirstRender: true,
   };
 
-  constructor({ id, title, price, priceType, description, properties, watts, colors }, Choice, ChoiceItem, inputValue) {
+  constructor({ id, title, price, priceType, description, properties, watts, colors }, Choice, ChoiceItem, filterParams) {
     super();
     this._id = id;
     this._title = title;
@@ -407,7 +433,7 @@ class Product extends BasicComponent {
     this._colors = colors;
     this._Choice = Choice;
     this._ChoiceItem = ChoiceItem;
-    this._inputValue = inputValue;
+    this._filterParams = filterParams;
     this._init();
   }
 
@@ -498,14 +524,14 @@ class Product extends BasicComponent {
       this._state.isFirstRender = false;
     }
 
-    if (this._title.toLowerCase().includes(this._inputValue)) {
+    if (this._title.toLowerCase().includes(this._filterParams)) {
       this._subElements.title.innerHTML = this._generateTitleMarker();
     }
   }
 
   _generateTitleMarker() {
-    const start = this._title.toLowerCase().indexOf(this._inputValue);
-    const end = start + this._inputValue.length;
+    const start = this._title.toLowerCase().indexOf(this._filterParams);
+    const end = start + this._filterParams.length;
     return `${this._title.slice(0, start)}<span class="product__title-marker">${this._title.slice(start, end)}</span>${this._title.slice(end)}`;
   }
 
@@ -815,6 +841,7 @@ class Header extends BasicComponent {
     this._subElements.miniCart.insertAdjacentElement("afterbegin", this._miniCart.element);
     this._subElements.search.insertAdjacentElement("afterbegin", this._search.element);
   }
+
   _getTemplate() {
     return `
 		    <header class="header">
@@ -843,6 +870,7 @@ class MiniCart extends BasicComponent {
     totalPrice: 0,
     products: [],
   };
+
   constructor(MiniCartItem) {
     super();
     this._MiniCartItem = MiniCartItem;
@@ -926,14 +954,14 @@ class MiniCart extends BasicComponent {
     }
   }
   _open() {
-    document.addEventListener("click", this._handleClickDocument);
     document.addEventListener("keydown", this._handleKeyDocument);
+    document.addEventListener("click", this._handleClickDocument);
     this._subElements.productsWrapper.classList.add("mini-cart__products-wrapper--active");
   }
 
   _close() {
-    document.removeEventListener("click", this._handleClickDocument);
     document.removeEventListener("keydown", this._handleKeyDocument);
+    document.removeEventListener("click", this._handleClickDocument);
     this._subElements.productsWrapper.classList.remove("mini-cart__products-wrapper--active");
   }
 
@@ -1241,6 +1269,10 @@ class Search extends BasicComponent {
 }
 
 class Filter extends BasicComponent {
+  _state = {
+    filterData: {},
+  };
+
   constructor(filterCategories, FilterWrapper, FilterFieldGroup, FilterControlLabel, FilterControlField, FormControlSelect, Option, filterBetween) {
     super();
     this._filterCategories = filterCategories;
@@ -1304,6 +1336,8 @@ class Filter extends BasicComponent {
 }
 
 class FilterWrapper extends BasicComponent {
+  _state = {};
+
   constructor(category, FilterFieldGroup, FilterControlLabel, FilterControlField, FormControlSelect, Option, filterBetween, setStateFilterDataHandler) {
     super();
     this._category = category;
@@ -1558,8 +1592,8 @@ const filter = new Filter(
   Option,
   getFilterBetween(products)
 );
-const popupBuy = new PopupBuy();
 const popupProperties = new PopupProperties(PropertyItem);
+const popupBuy = new PopupBuy();
 const popupImage = new PopupImage();
 const miniCart = new MiniCart(MiniCartItem);
 const alertList = new AlertList();
@@ -1592,12 +1626,11 @@ root.addEventListener("removeMiniCartItem", (e) => {
 });
 
 root.addEventListener("getInput", (e) => {
-  productList.update(e.detail.inputValue);
+  productList.update({ searchText: e.detail.inputValue });
 });
 
 root.addEventListener("filter", (e) => {
-  console.log(e.detail);
-  // productList.updateFilter(e.detail);
+  productList.update(e.detail);
 });
 
 //================Debounce
@@ -1650,3 +1683,4 @@ root.insertAdjacentElement("beforeend", popupImage.element);
 root.insertAdjacentElement("beforeend", alertList.element);
 
 //удаляет 2 товара из миникарта при повторном клике, исправить
+//корзина каждый раз закрывается
