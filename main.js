@@ -941,7 +941,7 @@ class MiniCart extends BasicComponent {
   }
 
   _handleClickDocument(e) {
-    if (!e.target.closest(".mini-cart")) {
+    if (!e.target.closest(".mini-cart") && !e.target.closest(".btn")) {
       this._setStateActive();
       this._close();
     }
@@ -1019,8 +1019,9 @@ class MiniCartItem extends BasicComponent {
       );
     });
 
-    this._subElements.close.addEventListener("click", () => {
+    this._subElements.close.addEventListener("click", (e) => {
       this._removeItemCallback(this._id);
+      console.log(e.target);
       this._remove();
     });
   }
